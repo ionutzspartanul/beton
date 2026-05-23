@@ -433,8 +433,8 @@ function openBetModal(ev, option){
     "<div class='pot-preview' id='bet-preview'>Pool: " + (POOL_SIZES[ev.id]||0).toFixed(1) + " TON · Your potential win: ~" + ((POOL_SIZES[ev.id]||0)*0.9/3).toFixed(2) + " TON</div>" +
     "<button class='pay-btn-ton' id='bet-ton-btn' onclick='placeBetTON()'>💎 Bet with TON</button>" +
     "<button class='pay-btn-stars' onclick='placeBetStars()'>⭐ Bet with Stars (50+)</button>" +
-    "<div id='bet-verify-area' style='display:none;'><button class='verify-btn' onclick='verifyBetPayment()'>✓ Verify TON Payment</button></div>" +
-    "<button class='cancel-btn' onclick='document.getElementById("bet-modal").remove()'>Cancel</button>" +
+    "<div id=\"bet-verify-area\" style=\"display:none;\"><button class=\"verify-btn\" id=\"bet-verify-btn\">Verify TON Payment</button></div>" +
+    "<button class=\"cancel-btn\" id=\"bet-cancel-btn\">Cancel</button>" +
     "</div>";
 
   document.body.appendChild(modal);
