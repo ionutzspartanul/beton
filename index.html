@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- v202605241904 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -8,7 +9,7 @@
 <script async src="https://tganalytics.xyz/index.js" onload="initAnalytics()" type="text/javascript"></script>
 <script>
 function initAnalytics() {
-  window.telegramAnalytics.init({ token: "ANALYTICS_TOKEN_PLACEHOLDER", appName: "beton" });
+  window.telegramAnalytics.init({ token: "eyJhcHBfbmFtZSI6ImJldG9uIiwiYXBwX3VybCI6Imh0dHBzOi8vdC5tZS9UT05CZXRBcHBCb3QiLCJhcHBfZG9tYWluIjoiaHR0cHM6Ly9pb251dHpzcGFydGFudWwuZ2l0aHViLmlvL2JldG9uIn0=!UAhAwdWj4EXnl9iYLkRru3TKeucc5Oh9HOijl8b1r/k=", appName: "beton" });
 }
 </script>
 <style>
@@ -1154,20 +1155,32 @@ function renderPortfolio() {
 
 // ── LEADERBOARD ───────────────────────────────────────────────────────────────
 function renderLeaderboard() {
-  var data = [
-    {name:"@CryptoProphet",won:48.5,bets:23,acc:78},
-    {name:"@TONWhisperer",won:35.2,bets:45,acc:71},
-    {name:"@BetMaster_X",won:28.9,bets:19,acc:84},
-    {name:"@FrogKing88",won:21.4,bets:31,acc:65},
-    {name:"@OracleOfTON",won:18.7,bets:12,acc:91},
-  ];
-  if(myBets.length>0) data.splice(2,0,{name:"@"+UNAME+" (you)",won:totalWon,bets:myBets.length,acc:0,isMe:true});
-  data = data.slice(0,5);
+  var el = document.getElementById("leaderboard-list");
+  var data = [];
+  if(myBets.length > 0){
+    var correct = myBets.filter(function(b){ return b.status==="won"; }).length;
+    var acc = myBets.length ? Math.round(correct/myBets.length*100) : 0;
+    data.push({name:"@"+UNAME+" (you)", won:totalWon, bets:myBets.length, acc:acc, isMe:true});
+  }
+  if(!data.length){
+    el.innerHTML = "<div style='text-align:center;padding:50px 20px;color:var(--muted);'>" +
+      "<div style='font-size:40px;margin-bottom:12px;'>🔮</div>" +
+      "<div style='font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;'>No predictors yet!</div>" +
+      "<div style='font-size=12px;'>Be the first to place a bet and claim the #1 spot!</div>" +
+      "</div>";
+    return;
+  }
   var medals = ["🥇","🥈","🥉","4️⃣","5️⃣"];
-  document.getElementById("leaderboard-list").innerHTML = data.map(function(p,i){
-    return "<div class='lb-row' style='" + (p.isMe?"background:rgba(78,168,240,.05);":"") + "'><div style='width:28px;font-size:16px;text-align:center;'>" + (medals[i]||i+1) + "</div><div style='flex:1;'><div style='font-size:13px;font-weight:700;color:" + (p.isMe?"var(--blue)":"var(--text)") + ";'>" + p.name + "</div><div style='font-size:11px;color:var(--muted);'>" + p.bets + " bets · " + p.acc + "% accuracy</div></div><div style='font-size:14px;font-weight:800;color:var(--green);'>" + p.won.toFixed(2) + " TON</div></div>";
+  el.innerHTML = data.map(function(p,i){
+    return "<div class='lb-row' style='" + (p.isMe?"background:rgba(78,168,240,.05);":"") + "'>" +
+      "<div style='width:28px;font-size:16px;text-align:center;'>" + (medals[i]||i+1) + "</div>" +
+      "<div style='flex:1;'><div style='font-size:13px;font-weight:700;color:" + (p.isMe?"var(--blue)":"var(--text)") + ";'>" + p.name + "</div>" +
+      "<div style='font-size:11px;color:var(--muted);'>" + p.bets + " bets · " + p.acc + "% accuracy</div></div>" +
+      "<div style='font-size:14px;font-weight:800;color:var(--green);'>" + p.won.toFixed(2) + " TON</div>" +
+      "</div>";
   }).join("");
 }
+
 
 // ── WALLET ────────────────────────────────────────────────────────────────────
 function connectWallet() {
