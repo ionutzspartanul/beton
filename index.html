@@ -115,7 +115,15 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
     <div class="cat-tab" id="cat-crypto">₿ Crypto</div>
     <div class="cat-tab" id="cat-news">📰 News</div>
   </div>
-  <div class="events-list" id="events-list"></div>
+  <div style="padding:0 16px 14px;margin-top:14px;">
+  <div id="daily-crypto-section"></div>
+</div>
+<div style="padding:0 16px 14px;">
+  <div id="football-matches-section"></div>
+</div>
+<div style="padding:0 16px 0;"><div style="height:1px;background:var(--border);margin-bottom:2px;"></div></div>
+<div style="padding:8px 16px 0;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Long-term Predictions</div>
+<div class="events-list" id="events-list"></div>
   <div style="height:20px;"></div>
   <div class="bot-nav">
     <button class="nav-btn active" id="nav-predict"><div class="nav-icon">🔮</div>Predict<div class="ndot"></div></button>
@@ -244,15 +252,487 @@ var p2pTab = "market";
 
 // ── EVENTS DATA ───────────────────────────────────────────────────────────────
 var EVENTS = [
-  {id:"wc_winner",   cat:"sport",  icon:"⚽", title:"World Cup 2026 Winner",        desc:"Which country will win FIFA World Cup 2026?",         options:["Brazil","France","Argentina","England","Germany","Spain","Other"], ends:"2026-07-19", pool:847.5},
-  {id:"wc_scorer",   cat:"sport",  icon:"👟", title:"World Cup Top Scorer",          desc:"Who will be the top scorer of World Cup 2026?",        options:["Mbappe","Vinicius Jr","Haaland","Bellingham","Other"],           ends:"2026-07-19", pool:234.0},
-  {id:"wc_first",    cat:"sport",  icon:"🥅", title:"First Goal WC2026",             desc:"Which team scores first in the opening match?",        options:["Mexico","South Africa","No goal before 90min"],                 ends:"2026-06-11", pool:156.5},
-  {id:"btc_150k",    cat:"crypto", icon:"₿",  title:"BTC above $150k by Aug 2026?", desc:"Will Bitcoin reach $150,000 before August 2026?",      options:["Yes","No"],                                                     ends:"2026-08-01", pool:521.0},
-  {id:"ton_10",      cat:"crypto", icon:"💎", title:"TON above $10 by July 2026?",  desc:"Will TON coin reach $10 before July 2026?",            options:["Yes","No"],                                                     ends:"2026-07-01", pool:389.0},
-  {id:"eth_5k",      cat:"crypto", icon:"Ξ",  title:"ETH above $5k by Sept 2026?",  desc:"Will Ethereum reach $5,000 before September 2026?",    options:["Yes","No"],                                                     ends:"2026-09-01", pool:267.5},
-  {id:"ai_reg",      cat:"news",   icon:"🤖", title:"EU AI Regulation in 2026?",    desc:"Will EU pass major AI regulation law in 2026?",        options:["Yes","No"],                                                     ends:"2026-12-31", pool:89.0},
-  {id:"mars_2026",   cat:"news",   icon:"🚀", title:"SpaceX Mars Mission 2026?",    desc:"Will SpaceX launch a Mars mission in 2026?",           options:["Yes","No"],                                                     ends:"2026-12-31", pool:123.5}
+  // ── WORLD CUP 2026 SPECIAL ─────────────────────────────────────────────────
+  {id:"wc_winner",   cat:"sport",  icon:"🏆", title:"World Cup 2026 — Champion",      desc:"Which country will win the FIFA World Cup 2026?",      options:["Brazil","France","Argentina","England","Germany","Spain","Portugal","Morocco","USA","Other"], ends:"2026-07-19", pool:0},
+  {id:"wc_scorer",   cat:"sport",  icon:"👟", title:"World Cup 2026 — Top Scorer",    desc:"Who will be the top scorer of World Cup 2026?",        options:["Mbappe","Vinicius Jr","Haaland","Bellingham","Messi","Ronaldo","Other"],           ends:"2026-07-19", pool:0},
+  {id:"wc_golden_gk",cat:"sport",  icon:"🧤", title:"World Cup 2026 — Golden Glove",  desc:"Best goalkeeper of World Cup 2026?",                  options:["Alisson","Courtois","Donnarumma","Ederson","Bono","Other"],     ends:"2026-07-19", pool:0},
+  {id:"wc_goals",    cat:"sport",  icon:"⚽", title:"Total Goals WC2026 — Over/Under 160?", desc:"Will there be more or fewer than 160 total goals in WC2026?", options:["Over 160","Under 160"],                          ends:"2026-07-19", pool:0},
+  {id:"wc_final",    cat:"sport",  icon:"🥇", title:"World Cup 2026 — Final Teams",   desc:"Which two teams will play the final?",                options:["Brazil vs France","Brazil vs Argentina","France vs England","Argentina vs Germany","Other"], ends:"2026-07-19", pool:0},
+  // Group stage matches opening day
+  {id:"wc_m1",       cat:"sport",  icon:"⚽", title:"WC2026 Opening — Mexico vs ?",   desc:"Who wins the World Cup 2026 opening match?",          options:["Mexico","Draw","Opponent"],                                     ends:"2026-06-11", pool:0},
+  // ── CRYPTO PREDICTIONS ─────────────────────────────────────────────────────
+  {id:"btc_150k",    cat:"crypto", icon:"₿",  title:"BTC above $150k by Aug 2026?",  desc:"Will Bitcoin reach $150,000 before August 2026?",      options:["Yes","No"],                                                     ends:"2026-08-01", pool:0},
+  {id:"btc_200k",    cat:"crypto", icon:"₿",  title:"BTC above $200k by Dec 2026?",  desc:"Will Bitcoin reach $200,000 before end of 2026?",      options:["Yes","No"],                                                     ends:"2026-12-31", pool:0},
+  {id:"ton_10",      cat:"crypto", icon:"💎", title:"TON above $10 by July 2026?",   desc:"Will TON coin reach $10 before July 2026?",            options:["Yes","No"],                                                     ends:"2026-07-01", pool:0},
+  {id:"ton_20",      cat:"crypto", icon:"💎", title:"TON above $20 by Dec 2026?",    desc:"Will TON coin reach $20 before end of 2026?",          options:["Yes","No"],                                                     ends:"2026-12-31", pool:0},
+  {id:"eth_5k",      cat:"crypto", icon:"Ξ",  title:"ETH above $5k by Sept 2026?",   desc:"Will Ethereum reach $5,000 before September 2026?",    options:["Yes","No"],                                                     ends:"2026-09-01", pool:0},
+  {id:"sol_500",     cat:"crypto", icon:"◎",  title:"SOL above $500 by Dec 2026?",   desc:"Will Solana reach $500 before end of 2026?",           options:["Yes","No"],                                                     ends:"2026-12-31", pool:0},
+  // ── NEWS / EVENTS ──────────────────────────────────────────────────────────
+  {id:"ai_reg",      cat:"news",   icon:"🤖", title:"EU AI Regulation in 2026?",     desc:"Will EU pass major AI regulation law in 2026?",        options:["Yes","No"],                                                     ends:"2026-12-31", pool:0},
+  {id:"mars_2026",   cat:"news",   icon:"🚀", title:"SpaceX Mars Mission 2026?",     desc:"Will SpaceX launch a crewed Mars mission in 2026?",    options:["Yes","No"],                                                     ends:"2026-12-31", pool:0},
+  {id:"fed_rate",    cat:"news",   icon:"🏦", title:"Fed Rate Cut by Sept 2026?",    desc:"Will the US Federal Reserve cut rates before Sept 2026?", options:["Yes — cuts rates","No — holds/raises"],                     ends:"2026-09-01", pool:0},
+  {id:"x_ipo",       cat:"news",   icon:"🐦", title:"X (Twitter) IPO in 2026?",      desc:"Will X (formerly Twitter) go public in 2026?",         options:["Yes","No"],                                                     ends:"2026-12-31", pool:0},
 ];
+
+// ── DAILY CRYPTO BETS ─────────────────────────────────────────────────────────
+var CRYPTO_COINS = [
+  {id:"btc",  name:"Bitcoin",  symbol:"BTC",  cgId:"bitcoin",   icon:"₿",  color:"#f7931a", bg:"rgba(247,147,26,.08)"},
+  {id:"eth",  name:"Ethereum", symbol:"ETH",  cgId:"ethereum",  icon:"Ξ",  color:"#627eea", bg:"rgba(98,126,234,.08)"},
+  {id:"sol",  name:"Solana",   symbol:"SOL",  cgId:"solana",    icon:"◎",  color:"#9945ff", bg:"rgba(153,69,255,.08)"},
+  {id:"ton",  name:"TON",      symbol:"TON",  cgId:"the-open-network", icon:"💎", color:"#4ea8f0", bg:"rgba(78,168,240,.08)"},
+  {id:"sui",  name:"Sui",      symbol:"SUI",  cgId:"sui",       icon:"🔷", color:"#6fbcf0", bg:"rgba(111,188,240,.08)"},
+];
+
+var livePrices = {}; // {btc: 67234.5, eth: 3421.2, ...}
+var refPrices = {};  // prices at time of bet (saved to localStorage)
+
+async function fetchLivePrices() {
+  try {
+    var ids = CRYPTO_COINS.map(function(c){ return c.cgId; }).join(",");
+    var r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=" + ids + "&vs_currencies=usd");
+    var data = await r.json();
+    CRYPTO_COINS.forEach(function(coin){
+      if(data[coin.cgId]) livePrices[coin.id] = data[coin.cgId].usd;
+    });
+    // Save today's reference prices (only if not already saved today)
+    var today = getDailyKey();
+    var savedRef = JSON.parse(localStorage.getItem("beton_ref_prices_" + today) || "{}");
+    if(!Object.keys(savedRef).length){
+      localStorage.setItem("beton_ref_prices_" + today, JSON.stringify(livePrices));
+    }
+    refPrices = JSON.parse(localStorage.getItem("beton_ref_prices_" + today) || "{}");
+    renderDailyCrypto();
+  } catch(e){
+    console.log("Price fetch error:", e);
+    renderDailyCrypto();
+  }
+}
+
+function formatPrice(price) {
+  if(!price) return "--";
+  if(price > 1000) return "$" + price.toLocaleString("en", {maximumFractionDigits:0});
+  if(price > 1) return "$" + price.toFixed(2);
+  return "$" + price.toFixed(4);
+}
+
+function getPriceChange(coinId) {
+  var ref = refPrices[coinId];
+  var live = livePrices[coinId];
+  if(!ref || !live) return null;
+  var pct = ((live - ref) / ref * 100).toFixed(2);
+  return {pct: pct, up: live >= ref};
+}
+
+function getDailyKey() {
+  return new Date().toISOString().slice(0,10); // YYYY-MM-DD
+}
+
+function getDailyBets() {
+  var key = "daily_bets_" + getDailyKey();
+  return JSON.parse(localStorage.getItem(key) || "{}");
+}
+
+function saveDailyBet(coinId, direction, amount) {
+  var key = "daily_bets_" + getDailyKey();
+  var bets = getDailyBets();
+  bets[coinId] = {direction: direction, amount: amount, time: new Date().toISOString()};
+  localStorage.setItem(key, JSON.stringify(bets));
+}
+
+function getTimeUntilReset() {
+  var now = new Date();
+  var tomorrow = new Date(now);
+  tomorrow.setUTCHours(24, 0, 0, 0);
+  var diff = tomorrow - now;
+  var h = Math.floor(diff/3600000);
+  var m = Math.floor((diff%3600000)/60000);
+  var s = Math.floor((diff%60000)/1000);
+  return h + "h " + m + "m " + s + "s";
+}
+
+function renderDailyCrypto() {
+  var el = document.getElementById("daily-crypto-section");
+  if(!el) return;
+  
+  var dailyBets = getDailyBets();
+  var timeLeft = getTimeUntilReset();
+  
+  var html = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>";
+  html += "<div style='font-size:14px;font-weight:800;color:var(--text);'>⚡ Daily Crypto Bets</div>";
+  html += "<div style='font-size:11px;color:var(--muted);'>Resets in <span id='crypto-timer' style='color:var(--blue);font-weight:700;'>" + timeLeft + "</span></div>";
+  html += "</div>";
+  html += "<div style='font-size:11px;color:var(--muted);margin-bottom:10px;'>Bet on whether each coin closes UP or DOWN vs current price at midnight UTC. You pay manually after result.</div>";
+  
+  CRYPTO_COINS.forEach(function(coin){
+    var myBet = dailyBets[coin.id];
+    var livePrice = livePrices[coin.id];
+    var refPrice = refPrices[coin.id];
+    var change = getPriceChange(coin.id);
+    
+    html += "<div style='background:" + coin.bg + ";border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;margin-bottom:8px;'>";
+    html += "<div style='display:flex;align-items:center;gap:10px;margin-bottom:8px;'>";
+    html += "<div style='font-size:22px;'>" + coin.icon + "</div>";
+    html += "<div style='flex:1;'>";
+    html += "<div style='font-size:13px;font-weight:800;color:" + coin.color + ";'>" + coin.name + "</div>";
+    // Show live price
+    if(livePrice) {
+      html += "<div style='font-size:12px;color:var(--text);font-weight:700;'>" + formatPrice(livePrice);
+      if(change) html += " <span style='color:" + (change.up?"var(--green)":"var(--red)") + ";font-size:11px;'>" + (change.up?"▲":"▼") + " " + Math.abs(change.pct) + "%</span>";
+      html += "</div>";
+    } else {
+      html += "<div style='font-size:11px;color:var(--muted);'>Loading price...</div>";
+    }
+    html += "</div>";
+    // My bet badge
+    if(myBet){
+      html += "<div style='font-size:11px;font-weight:700;color:" + (myBet.direction==="up"?"var(--green)":"var(--red)") + ";background:" + (myBet.direction==="up"?"rgba(32,208,96,.1)":"rgba(232,48,48,.1)") + ";padding:3px 8px;border-radius:8px;'>";
+      html += (myBet.direction==="up"?"▲":"▼") + " " + myBet.amount + " TON";
+      html += "</div>";
+    }
+    html += "</div>";
+    // Reference price
+    if(refPrice && myBet){
+      html += "<div style='font-size:10px;color:var(--muted);margin-bottom:6px;'>Ref price: " + formatPrice(refPrice) + " · Result paid manually after midnight UTC</div>";
+    }
+    
+    if(!myBet){
+      html += "<div style='display:flex;gap:8px;'>";
+      html += "<button class='daily-bet-btn' data-coin='" + coin.id + "' data-dir='up' style='flex:1;padding:9px;border-radius:10px;border:1px solid rgba(32,208,96,.3);background:rgba(32,208,96,.08);cursor:pointer;font-size:13px;font-weight:800;color:var(--green);'>▲ UP</button>";
+      html += "<button class='daily-bet-btn' data-coin='" + coin.id + "' data-dir='down' style='flex:1;padding:9px;border-radius:10px;border:1px solid rgba(232,48,48,.3);background:rgba(232,48,48,.08);cursor:pointer;font-size:13px;font-weight:800;color:var(--red);'>▼ DOWN</button>";
+      html += "</div>";
+    } else {
+      html += "<div style='text-align:center;font-size:11px;color:var(--muted);padding:5px;background:var(--surface);border-radius:8px;'>Bet placed ✓ · Result paid within 24h after midnight UTC</div>";
+    }
+    html += "</div>";
+  });
+  
+  el.innerHTML = html;
+  
+  // Attach events
+  el.querySelectorAll(".daily-bet-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var coinId = this.getAttribute("data-coin");
+      var dir = this.getAttribute("data-dir");
+      var coin = CRYPTO_COINS.find(function(c){ return c.id===coinId; });
+      openDailyBetModal(coin, dir);
+    });
+  });
+}
+
+function openDailyBetModal(coin, direction) {
+  if(!walletAddr){ toast("Connect wallet first!", "#e83030"); navTo("wallet"); setTimeout(connectWallet,600); return; }
+  
+  var old = document.getElementById("daily-bet-modal");
+  if(old) old.remove();
+  
+  var modal = document.createElement("div");
+  modal.className = "modal-overlay";
+  modal.id = "daily-bet-modal";
+  
+  var inner = document.createElement("div");
+  inner.className = "modal";
+  
+  var dirColor = direction === "up" ? "var(--green)" : "var(--red)";
+  var dirText = direction === "up" ? "▲ UP" : "▼ DOWN";
+  
+  inner.innerHTML = 
+    "<div class='modal-title'>" + coin.icon + " " + coin.name + " Daily Bet</div>" +
+    "<div class='modal-sub'>Your prediction: <strong style='color:" + dirColor + ";'>" + dirText + " in 24 hours</strong></div>" +
+    "<div class='amount-tabs'>" +
+    "<div class='amt-tab active' id='damt05'>0.5 TON</div>" +
+    "<div class='amt-tab' id='damt1'>1 TON</div>" +
+    "<div class='amt-tab' id='damt2'>2 TON</div>" +
+    "<div class='amt-tab' id='damt5'>5 TON</div>" +
+    "</div>" +
+    "<input class='bet-input' type='number' id='daily-amt-inp' value='0.5' min='0.5' step='0.1'/>" +
+    "<div class='pot-info'>" + coin.name + " 24h bet · Winner gets ~1.9x · Resets daily at midnight UTC</div>" +
+    "<button class='btn-ton' id='daily-pay-ton'>💎 Bet with TON</button>" +
+    "<button class='btn-stars' id='daily-pay-stars'>⭐ Bet with Stars</button>" +
+    "<div id='daily-verify-area' style='display:none;'><button class='btn-verify' id='daily-verify-btn'>✓ Verify TON Payment</button></div>" +
+    "<button class='btn-cancel' id='daily-cancel-btn'>Cancel</button>";
+  
+  modal.appendChild(inner);
+  document.body.appendChild(modal);
+  
+  modal.addEventListener("click", function(e){ if(e.target===modal) modal.remove(); });
+  document.getElementById("daily-cancel-btn").addEventListener("click", function(){ modal.remove(); });
+  
+  // Amount tabs
+  [[0.5,"damt05"],[1,"damt1"],[2,"damt2"],[5,"damt5"]].forEach(function(pair){
+    var el = document.getElementById(pair[1]);
+    if(el) el.addEventListener("click", function(){
+      document.getElementById("daily-amt-inp").value = pair[0];
+      document.querySelectorAll(".amt-tab").forEach(function(t){ t.classList.remove("active"); });
+      this.classList.add("active");
+    });
+  });
+  
+  document.getElementById("daily-pay-ton").addEventListener("click", function(){
+    var amt = parseFloat(document.getElementById("daily-amt-inp").value) || 0.5;
+    if(amt < 0.5){ toast("Minimum 0.5 TON!", "#e83030"); return; }
+    var nano = Math.floor(amt * 1e9);
+    var label = "BetTON:Daily:" + coin.id + ":" + direction;
+    var tkLink = "https://app.tonkeeper.com/transfer/" + OWNER + "?amount=" + nano + "&text=" + encodeURIComponent(label);
+    if(tg && tg.openLink) tg.openLink(tkLink);
+    else window.open(tkLink, "_blank");
+    setTimeout(function(){
+      var va = document.getElementById("daily-verify-area");
+      if(va) va.style.display = "block";
+    }, 3000);
+    document.getElementById("daily-verify-btn").addEventListener("click", async function(){
+      this.textContent = "Checking..."; this.disabled = true;
+      var ok = await checkBlockchain(nano);
+      if(ok){
+        saveDailyBet(coin.id, direction, amt);
+        modal.remove();
+        renderDailyCrypto();
+        // Add to my bets
+        myBets.push({eventId:"daily_"+coin.id+"_"+getDailyKey(), eventTitle:coin.name+" Daily "+direction.toUpperCase(), option:dirText, amount:amt, method:"ton", date:new Date().toISOString(), status:"pending"});
+        localStorage.setItem("beton_bets", JSON.stringify(myBets));
+        updateStats();
+        toast("Daily bet placed on " + coin.name + " " + dirText + "!", dirColor);
+      } else {
+        this.textContent = "Not found — try again"; this.disabled = false;
+      }
+    });
+  });
+  
+  document.getElementById("daily-pay-stars").addEventListener("click", function(){
+    var amt = parseFloat(document.getElementById("daily-amt-inp").value) || 0.5;
+    var starsAmt = Math.max(50, Math.round(amt*70));
+    if(!tg){ toast("Open in Telegram!", "#e83030"); return; }
+    try{
+      tg.openInvoice("https://t.me/TONBetAppBot?start=daily_stars_" + starsAmt, function(status){
+        if(status==="paid"){
+          saveDailyBet(coin.id, direction, starsAmt+"⭐");
+          modal.remove();
+          renderDailyCrypto();
+          toast("Daily bet placed!", dirColor);
+        }
+      });
+    }catch(e){ toast("Use TON instead.", "#f0c040"); }
+  });
+}
+
+// Update crypto timer every second
+setInterval(function(){
+  var el = document.getElementById("crypto-timer");
+  if(el) el.textContent = getTimeUntilReset();
+}, 1000);
+
+// ── LIVE FOOTBALL MATCHES ────────────────────────────────────────────────────
+var FOOTBALL_KEY = "b272a3ac5da34ba1995e4fc65e3c754d";
+var FOOTBALL_BASE = "https://api.football-data.org/v4";
+var TOP_COMPETITIONS = ["CL","PL","PD","SA","BL1","FL1","WC"];
+var COMP_NAMES = {
+  "CL":"Champions League","PL":"Premier League","PD":"La Liga",
+  "SA":"Serie A","BL1":"Bundesliga","FL1":"Ligue 1","WC":"World Cup 2026"
+};
+var liveMatches = [];
+var myMatchBets = JSON.parse(localStorage.getItem("beton_match_bets") || "{}");
+
+async function loadFootballMatches() {
+  var el = document.getElementById("football-matches-section");
+  if(!el) return;
+  
+  el.innerHTML = "<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px;'>Loading matches...</div>";
+  
+  var today = new Date().toISOString().slice(0,10);
+  var tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0,10);
+  var allMatches = [];
+  
+  // Fetch from multiple competitions
+  for(var i=0; i<TOP_COMPETITIONS.length; i++){
+    var code = TOP_COMPETITIONS[i];
+    try{
+      var url = FOOTBALL_BASE + "/competitions/" + code + "/matches?dateFrom=" + today + "&dateTo=" + tomorrow + "&status=SCHEDULED,TIMED,IN_PLAY,LIVE";
+      var r = await fetch(url, {headers:{"X-Auth-Token": FOOTBALL_KEY}});
+      if(r.ok){
+        var data = await r.json();
+        var matches = data.matches || [];
+        matches.forEach(function(m){ m._competition = code; });
+        allMatches = allMatches.concat(matches.slice(0,3));
+      }
+    }catch(e){}
+  }
+  
+  liveMatches = allMatches;
+  
+  if(!allMatches.length){
+    // Show demo matches when no live data
+    renderDemoMatches();
+    return;
+  }
+  
+  renderFootballMatches(allMatches);
+}
+
+function renderDemoMatches() {
+  var demos = [
+    {id:"demo1", _competition:"CL", homeTeam:{name:"Real Madrid"}, awayTeam:{name:"Man City"}, utcDate: new Date(Date.now()+3600000).toISOString(), status:"SCHEDULED"},
+    {id:"demo2", _competition:"PL", homeTeam:{name:"Arsenal"}, awayTeam:{name:"Liverpool"}, utcDate: new Date(Date.now()+7200000).toISOString(), status:"SCHEDULED"},
+    {id:"demo3", _competition:"PD", homeTeam:{name:"Barcelona"}, awayTeam:{name:"Atletico"}, utcDate: new Date(Date.now()+10800000).toISOString(), status:"SCHEDULED"},
+    {id:"demo4", _competition:"WC", homeTeam:{name:"Brazil"}, awayTeam:{name:"Argentina"}, utcDate: new Date("2026-07-15").toISOString(), status:"SCHEDULED"},
+    {id:"demo5", _competition:"WC", homeTeam:{name:"France"}, awayTeam:{name:"England"}, utcDate: new Date("2026-07-12").toISOString(), status:"SCHEDULED"},
+  ];
+  renderFootballMatches(demos);
+}
+
+function renderFootballMatches(matches) {
+  var el = document.getElementById("football-matches-section");
+  if(!el) return;
+  
+  var html = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;'>";
+  html += "<div style='font-size:14px;font-weight:800;color:var(--text);'>⚽ Today\'s Top Matches</div>";
+  html += "<div style='font-size:11px;color:var(--muted);' id='matches-count'>" + matches.length + " matches</div>";
+  html += "</div>";
+  
+  matches.slice(0,8).forEach(function(m){
+    var compName = COMP_NAMES[m._competition] || m._competition;
+    var isLive = m.status === "IN_PLAY" || m.status === "LIVE" || m.status === "PAUSED";
+    var betKey = m.id + "_" + getDailyKey();
+    var myBet = myMatchBets[betKey];
+    var matchTime = new Date(m.utcDate).toLocaleTimeString("en",{hour:"2-digit",minute:"2-digit"});
+    
+    html += "<div style='background:var(--card);border-radius:14px;padding:12px;margin-bottom:8px;border:1px solid var(--border);" + (isLive?"border-left:3px solid var(--green);":"border-left:3px solid var(--blue);") + "'>";
+    
+    // Competition badge + time
+    html += "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>";
+    html += "<span style='font-size:10px;font-weight:700;background:rgba(78,168,240,.1);color:var(--blue);padding:2px 8px;border-radius:10px;'>" + compName + "</span>";
+    html += "<span style='font-size:11px;color:" + (isLive?"var(--green)":"var(--muted)") + ";font-weight:" + (isLive?"700":"400") + ";'>" + (isLive?"🟢 LIVE":matchTime) + "</span>";
+    html += "</div>";
+    
+    // Teams
+    html += "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;'>";
+    html += "<div style='flex:1;text-align:center;'><div style='font-size:13px;font-weight:800;color:var(--text);'>" + m.homeTeam.name + "</div></div>";
+    html += "<div style='font-size:14px;font-weight:900;color:var(--muted);padding:4px 10px;background:var(--surface);border-radius:8px;'>VS</div>";
+    html += "<div style='flex:1;text-align:center;'><div style='font-size:13px;font-weight:800;color:var(--text);'>" + m.awayTeam.name + "</div></div>";
+    html += "</div>";
+    
+    // Bet buttons or my bet
+    if(myBet){
+      html += "<div style='text-align:center;background:rgba(78,168,240,.08);border-radius:8px;padding:6px;font-size:12px;color:var(--blue);'>";
+      html += "Your bet: <strong>" + myBet.pick + "</strong> · " + myBet.amount + " TON ✓</div>";
+    } else {
+      html += "<div style='display:flex;gap:6px;'>";
+      html += "<button class='match-bet-btn' data-match='" + m.id + "' data-comp='" + m._competition + "' data-home='" + m.homeTeam.name.replace(/'/g,"&#39;") + "' data-away='" + m.awayTeam.name.replace(/'/g,"&#39;") + "' data-pick='" + m.homeTeam.name.replace(/'/g,"&#39;") + "' style='flex:1;padding:8px;border-radius:8px;border:1px solid rgba(32,208,96,.3);background:rgba(32,208,96,.08);cursor:pointer;font-size:11px;font-weight:700;color:var(--green);'>Home Win</button>";
+      html += "<button class='match-bet-btn' data-match='" + m.id + "' data-comp='" + m._competition + "' data-home='" + m.homeTeam.name.replace(/'/g,"&#39;") + "' data-away='" + m.awayTeam.name.replace(/'/g,"&#39;") + "' data-pick='Draw' style='flex:1;padding:8px;border-radius:8px;border:1px solid rgba(240,192,64,.3);background:rgba(240,192,64,.08);cursor:pointer;font-size:11px;font-weight:700;color:var(--gold);'>Draw</button>";
+      html += "<button class='match-bet-btn' data-match='" + m.id + "' data-comp='" + m._competition + "' data-home='" + m.homeTeam.name.replace(/'/g,"&#39;") + "' data-away='" + m.awayTeam.name.replace(/'/g,"&#39;") + "' data-pick='" + m.awayTeam.name.replace(/'/g,"&#39;") + "' style='flex:1;padding:8px;border-radius:8px;border:1px solid rgba(232,48,48,.3);background:rgba(232,48,48,.08);cursor:pointer;font-size:11px;font-weight:700;color:var(--red);'>Away Win</button>";
+      html += "</div>";
+    }
+    html += "</div>";
+  });
+  
+  el.innerHTML = html;
+  
+  // Attach click events
+  el.querySelectorAll(".match-bet-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var matchId = this.getAttribute("data-match");
+      var comp = this.getAttribute("data-comp");
+      var home = this.getAttribute("data-home");
+      var away = this.getAttribute("data-away");
+      var pick = this.getAttribute("data-pick");
+      openMatchBetModal(matchId, comp, home, away, pick);
+    });
+  });
+}
+
+function openMatchBetModal(matchId, comp, home, away, pick) {
+  if(!walletAddr){ toast("Connect wallet first!", "#e83030"); navTo("wallet"); setTimeout(connectWallet,600); return; }
+  
+  var old = document.getElementById("match-bet-modal");
+  if(old) old.remove();
+  
+  var pickColor = pick === home ? "var(--green)" : pick === "Draw" ? "var(--gold)" : "var(--red)";
+  var compName = COMP_NAMES[comp] || comp;
+  
+  var modal = document.createElement("div");
+  modal.className = "modal-overlay";
+  modal.id = "match-bet-modal";
+  
+  var inner = document.createElement("div");
+  inner.className = "modal";
+  inner.innerHTML = 
+    "<div class='modal-title'>⚽ " + home + " vs " + away + "</div>" +
+    "<div class='modal-sub'>" + compName + " · Your pick: <strong style='color:" + pickColor + ";'>" + pick + "</strong></div>" +
+    "<div class='amount-tabs'>" +
+    "<div class='amt-tab active' id='mamt05'>0.5 TON</div>" +
+    "<div class='amt-tab' id='mamt1'>1 TON</div>" +
+    "<div class='amt-tab' id='mamt2'>2 TON</div>" +
+    "<div class='amt-tab' id='mamt5'>5 TON</div>" +
+    "</div>" +
+    "<input class='bet-input' type='number' id='match-amt-inp' value='0.5' min='0.5' step='0.1'/>" +
+    "<div class='pot-info'>Result pays ~1.9x · Verified on TON blockchain</div>" +
+    "<button class='btn-ton' id='match-pay-ton'>💎 Bet with TON</button>" +
+    "<button class='btn-stars' id='match-pay-stars'>⭐ Bet with Stars</button>" +
+    "<div id='match-verify-area' style='display:none;'><button class='btn-verify' id='match-verify-btn'>✓ Verify TON Payment</button></div>" +
+    "<button class='btn-cancel' id='match-cancel-btn'>Cancel</button>";
+  
+  modal.appendChild(inner);
+  document.body.appendChild(modal);
+  
+  modal.addEventListener("click", function(e){ if(e.target===modal) modal.remove(); });
+  document.getElementById("match-cancel-btn").addEventListener("click", function(){ modal.remove(); });
+  
+  [[0.5,"mamt05"],[1,"mamt1"],[2,"mamt2"],[5,"mamt5"]].forEach(function(pair){
+    var el = document.getElementById(pair[1]);
+    if(el) el.addEventListener("click", function(){
+      document.getElementById("match-amt-inp").value = pair[0];
+      document.querySelectorAll(".amt-tab").forEach(function(t){ t.classList.remove("active"); });
+      this.classList.add("active");
+    });
+  });
+  
+  document.getElementById("match-pay-ton").addEventListener("click", function(){
+    var amt = parseFloat(document.getElementById("match-amt-inp").value) || 0.5;
+    if(amt < 0.5){ toast("Minimum 0.5 TON!", "#e83030"); return; }
+    var nano = Math.floor(amt * 1e9);
+    var label = "BetTON:Match:" + matchId + ":" + pick;
+    var tkLink = "https://app.tonkeeper.com/transfer/" + OWNER + "?amount=" + nano + "&text=" + encodeURIComponent(label);
+    if(tg && tg.openLink) tg.openLink(tkLink);
+    else window.open(tkLink, "_blank");
+    setTimeout(function(){
+      var va = document.getElementById("match-verify-area");
+      if(va) va.style.display = "block";
+      document.getElementById("match-verify-btn").addEventListener("click", async function(){
+        this.textContent = "Checking..."; this.disabled = true;
+        var ok = await checkBlockchain(nano);
+        if(ok){
+          var betKey = matchId + "_" + getDailyKey();
+          myMatchBets[betKey] = {pick:pick, amount:amt, home:home, away:away, comp:comp};
+          localStorage.setItem("beton_match_bets", JSON.stringify(myMatchBets));
+          modal.remove();
+          loadFootballMatches();
+          myBets.push({eventId:"match_"+matchId, eventTitle:home+" vs "+away, option:pick, amount:amt, method:"ton", date:new Date().toISOString(), status:"pending"});
+          localStorage.setItem("beton_bets", JSON.stringify(myBets));
+          updateStats();
+          toast("Bet placed on " + pick + "!", pickColor);
+        } else {
+          this.textContent = "Not found — try again"; this.disabled = false;
+        }
+      });
+    }, 3000);
+  });
+  
+  document.getElementById("match-pay-stars").addEventListener("click", function(){
+    var amt = parseFloat(document.getElementById("match-amt-inp").value) || 0.5;
+    var starsAmt = Math.max(50, Math.round(amt*70));
+    if(!tg){ toast("Open in Telegram!", "#e83030"); return; }
+    try{
+      tg.openInvoice("https://t.me/TONBetAppBot?start=match_stars_" + starsAmt, function(status){
+        if(status==="paid"){
+          var betKey = matchId + "_" + getDailyKey();
+          myMatchBets[betKey] = {pick:pick, amount:starsAmt+"⭐", home:home, away:away, comp:comp};
+          localStorage.setItem("beton_match_bets", JSON.stringify(myMatchBets));
+          modal.remove();
+          loadFootballMatches();
+          toast("Stars bet placed on " + pick + "!", pickColor);
+        }
+      });
+    }catch(e){ toast("Use TON instead.", "#f0c040"); }
+  });
+}
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
 function navTo(name) {
@@ -271,7 +751,7 @@ function navTo(name) {
   if(name === "portfolio") renderPortfolio();
   if(name === "leaderboard") renderLeaderboard();
   if(name === "wallet") renderWallet();
-  if(name === "predict") renderEvents(currentCat);
+  if(name === "predict"){ renderEvents(currentCat); renderDailyCrypto(); loadFootballMatches(); }
   if(name === "p2p"){ loadP2POffers(); }
 }
 
@@ -322,7 +802,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
   // Init
   renderEvents("all");
+  fetchLivePrices();
+  loadFootballMatches();
   updateStats();
+  // Refresh prices every 60 seconds
+  setInterval(fetchLivePrices, 60000);
   if(walletAddr) updateWalletUI();
 });
 
