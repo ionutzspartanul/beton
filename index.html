@@ -118,6 +118,7 @@ body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMac
   </div>
   <div style="padding:0 16px 14px;margin-top:14px;">
   <div id="daily-crypto-section"></div>
+  <div id="daily-history-section" style="margin-top:12px;"></div>
 </div>
 <div style="padding:0 16px 14px;">
   <div id="football-matches-section"></div>
@@ -333,11 +334,104 @@ function getDailyBets() {
   return JSON.parse(localStorage.getItem(key) || "{}");
 }
 
-function saveDailyBet(coinId, direction, amount) {
+function saveDailyBet(coinId, direction, amount, refPrice) {
   var key = "daily_bets_" + getDailyKey();
   var bets = getDailyBets();
-  bets[coinId] = {direction: direction, amount: amount, time: new Date().toISOString()};
+  bets[coinId] = {
+    direction: direction, 
+    amount: amount, 
+    refPrice: refPrice || null,
+    time: new Date().toISOString(),
+    status: "pending"
+  };
   localStorage.setItem(key, JSON.stringify(bets));
+  // Also save to all-time history
+  var history = JSON.parse(localStorage.getItem("beton_daily_history") || "[]");
+  history.unshift({
+    date: getDailyKey(),
+    coinId: coinId,
+    direction: direction,
+    amount: amount,
+    refPrice: refPrice || null,
+    status: "pending",
+    time: new Date().toISOString()
+  });
+  localStorage.setItem("beton_daily_history", JSON.stringify(history.slice(0,50)));
+}
+
+async function checkAndSettleDailyBets() {
+  // Check previous days bets and settle them
+  var history = JSON.parse(localStorage.getItem("beton_daily_history") || "[]");
+  var today = getDailyKey();
+  var pendingOldBets = history.filter(function(b){ return b.status==="pending" && b.date !== today; });
+  
+  if(!pendingOldBets.length) return;
+  
+  // Fetch current prices to compare
+  try{
+    var ids = CRYPTO_COINS.map(function(c){ return c.cgId; }).join(",");
+    var r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=" + ids + "&vs_currencies=usd");
+    var data = await r.json();
+    
+    var settled = false;
+    pendingOldBets.forEach(function(bet){
+      var coin = CRYPTO_COINS.find(function(c){ return c.id === bet.coinId; });
+      if(!coin) return;
+      var currentPrice = data[coin.cgId] && data[coin.cgId].usd;
+      if(!currentPrice || !bet.refPrice) return;
+      
+      var actuallyWentUp = currentPrice >= bet.refPrice;
+      var won = (bet.direction === "up" && actuallyWentUp) || (bet.direction === "down" && !actuallyWentUp);
+      bet.status = won ? "won" : "lost";
+      bet.settledPrice = currentPrice;
+      settled = true;
+    });
+    
+    if(settled){
+      localStorage.setItem("beton_daily_history", JSON.stringify(history));
+      renderDailyHistory();
+    }
+  } catch(e){ console.log("Settle error:", e); }
+}
+
+function renderDailyHistory() {
+  var el = document.getElementById("daily-history-section");
+  if(!el) return;
+  
+  var history = JSON.parse(localStorage.getItem("beton_daily_history") || "[]");
+  var old = history.filter(function(b){ return b.date !== getDailyKey(); });
+  
+  if(!old.length){
+    el.innerHTML = "";
+    return;
+  }
+  
+  var html = "<div style='font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px;'>📋 Bet History</div>";
+  
+  old.slice(0,10).forEach(function(bet){
+    var coin = CRYPTO_COINS.find(function(c){ return c.id === bet.coinId; });
+    if(!coin) return;
+    var statusColor = bet.status==="won" ? "var(--green)" : bet.status==="lost" ? "var(--red)" : "var(--muted)";
+    var statusText = bet.status==="won" ? "✓ WON — payout within 24h" : bet.status==="lost" ? "✗ LOST" : "⏳ Pending settlement";
+    var dirText = bet.direction==="up" ? "▲ UP" : "▼ DOWN";
+    var dirColor = bet.direction==="up" ? "var(--green)" : "var(--red)";
+    
+    html += "<div style='background:var(--card);border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid var(--border);border-left:3px solid " + statusColor + ";'>";
+    html += "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;'>";
+    html += "<div style='font-size:13px;font-weight:800;color:" + coin.color + ";'>" + coin.icon + " " + coin.name + "</div>";
+    html += "<div style='font-size:11px;color:var(--muted);'>" + bet.date + "</div>";
+    html += "</div>";
+    html += "<div style='display:flex;justify-content:space-between;align-items:center;'>";
+    html += "<div style='font-size:12px;'>Bet: <span style='color:" + dirColor + ";font-weight:700;'>" + dirText + "</span> · " + bet.amount + " TON</div>";
+    html += "<div style='font-size:11px;font-weight:700;color:" + statusColor + ";'>" + statusText + "</div>";
+    html += "</div>";
+    if(bet.refPrice && bet.settledPrice){
+      html += "<div style='font-size:10px;color:var(--muted);margin-top:4px;'>Ref: " + formatPrice(bet.refPrice) + " → Result: " + formatPrice(bet.settledPrice) + "</div>";
+    }
+    html += "</div>";
+  });
+  
+  el.innerHTML = html;
 }
 
 function getTimeUntilReset() {
@@ -484,7 +578,7 @@ function openDailyBetModal(coin, direction) {
       this.textContent = "Checking..."; this.disabled = true;
       var ok = await checkBlockchain(nano);
       if(ok){
-        saveDailyBet(coin.id, direction, amt);
+        saveDailyBet(coin.id, direction, amt, refPrices[coin.id] || livePrices[coin.id] || null);
         modal.remove();
         renderDailyCrypto();
         // Add to my bets
@@ -795,8 +889,12 @@ document.addEventListener("DOMContentLoaded", function(){
   fetchLivePrices();
   loadFootballMatches();
   updateStats();
+  renderDailyHistory();
+  checkAndSettleDailyBets();
   // Refresh prices every 60 seconds
   setInterval(fetchLivePrices, 60000);
+  // Check settlement every 5 minutes
+  setInterval(checkAndSettleDailyBets, 300000);
   if(walletAddr) updateWalletUI();
 });
 
